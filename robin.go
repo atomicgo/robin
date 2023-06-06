@@ -1,0 +1,53 @@
+package robin
+
+import "sync"
+
+// Loadbalancer is a simple, generic round-robin load balancer for Go.
+type Loadbalancer[T any] struct {
+	Items        []T
+	CurrentIndex int
+	ThreadSafe   bool
+
+	mu sync.Mutex
+}
+
+// NewLoadbalancer creates a new Loadbalancer.
+// For maximum speed, this is not thread-safe. Use NewThreadSafeLoadbalancer if you need thread-safety.
+// If two goroutines call Loadbalancer.Next at the exact same time, it can happen that they both return the same item.
+func NewLoadbalancer[T any](items []T) *Loadbalancer[T] {
+	return &Loadbalancer[T]{
+		Items: items,
+	}
+}
+
+// NewThreadSafeLoadbalancer creates a new Loadbalancer.
+// This is thread-safe, but slower than NewLoadbalancer.
+// It is guaranteed that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
+func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T] {
+	return &Loadbalancer[T]{
+		Items:      items,
+		ThreadSafe: true,
+	}
+}
+
+// Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
+func (l *Loadbalancer[T]) Next() T {
+	if l.ThreadSafe {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+	}
+
+	item := l.Items[l.CurrentIndex]
+	l.CurrentIndex = (l.CurrentIndex + 1) % len(l.Items)
+	return item
+}
+
+// Reset resets the Loadbalancer to its initial state.
+func (l *Loadbalancer[T]) Reset() {
+	l.CurrentIndex = 0
+}
+
+// AddItems adds items to the Loadbalancer.
+func (l *Loadbalancer[T]) AddItems(items ...T) {
+	l.Items = append(l.Items, items...)
+}
