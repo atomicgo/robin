@@ -16,7 +16,7 @@
 </a>
 
 <a href="https://codecov.io/gh/atomicgo/robin">
-<!-- unittestcount:start --><img src="https://img.shields.io/badge/Unit_Tests-5-magenta?style=flat-square" alt="Unit test count"><!-- unittestcount:end -->
+<!-- unittestcount:start --><img src="https://img.shields.io/badge/Unit_Tests-11-magenta?style=flat-square" alt="Unit test count"><!-- unittestcount:end -->
 </a>
 
 <a href="https://opensource.org/licenses/MIT" target="_blank">
@@ -94,6 +94,7 @@ BenchmarkLoadbalancer_Next_ThreadSafe-32        100000000               10.06 ns
   - [func NewLoadbalancer[T any](items []T) *Loadbalancer[T]](<#func-newloadbalancer>)
   - [func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T]](<#func-newthreadsafeloadbalancer>)
   - [func (l *Loadbalancer[T]) AddItems(items ...T)](<#func-loadbalancert-additems>)
+  - [func (l *Loadbalancer[T]) Current() T](<#func-loadbalancert-current>)
   - [func (l *Loadbalancer[T]) Next() T](<#func-loadbalancert-next>)
   - [func (l *Loadbalancer[T]) Reset()](<#func-loadbalancert-reset>)
 
@@ -104,9 +105,8 @@ Loadbalancer is a simple, generic round\-robin load balancer for Go.
 
 ```go
 type Loadbalancer[T any] struct {
-    Items        []T
-    CurrentIndex int
-    ThreadSafe   bool
+    Items      []T
+    ThreadSafe bool
     // contains filtered or unexported fields
 }
 ```
@@ -119,6 +119,28 @@ func NewLoadbalancer[T any](items []T) *Loadbalancer[T]
 
 NewLoadbalancer creates a new Loadbalancer. For maximum speed, this is not thread\-safe. Use NewThreadSafeLoadbalancer if you need thread\-safety. If two goroutines call Loadbalancer.Next at the exact same time, it can happen that they both return the same item.
 
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []string{"object1", "object2", "object3"}
+	lb := NewLoadbalancer(set)
+
+	fmt.Println(lb.Current())
+
+}
+```
+
+#### Output
+
+```
+object1
+```
+
+</p>
+</details>
+
 ### func [NewThreadSafeLoadbalancer](<https://github.com/atomicgo/robin/blob/main/robin.go#L26>)
 
 ```go
@@ -127,7 +149,29 @@ func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T]
 
 NewThreadSafeLoadbalancer creates a new Loadbalancer. This is thread\-safe, but slower than NewLoadbalancer. It is guaranteed that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
 
-### func \(\*Loadbalancer\[T\]\) [AddItems](<https://github.com/atomicgo/robin/blob/main/robin.go#L59>)
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []string{"object1", "object2", "object3"}
+	lb := NewThreadSafeLoadbalancer(set)
+
+	fmt.Println(lb.Current())
+
+}
+```
+
+#### Output
+
+```
+object1
+```
+
+</p>
+</details>
+
+### func \(\*Loadbalancer\[T\]\) [AddItems](<https://github.com/atomicgo/robin/blob/main/robin.go#L67>)
 
 ```go
 func (l *Loadbalancer[T]) AddItems(items ...T)
@@ -135,11 +179,67 @@ func (l *Loadbalancer[T]) AddItems(items ...T)
 
 AddItems adds items to the Loadbalancer.
 
-### func \(\*Loadbalancer\[T\]\) [Next](<https://github.com/atomicgo/robin/blob/main/robin.go#L35>)
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []int{1, 2, 3}
+	lb := NewLoadbalancer(set)
+
+	lb.AddItems(4, 5, 6)
+
+	fmt.Println(lb.Items)
+
+}
+```
+
+#### Output
+
+```
+[1 2 3 4 5 6]
+```
+
+</p>
+</details>
+
+### func \(\*Loadbalancer\[T\]\) [Current](<https://github.com/atomicgo/robin/blob/main/robin.go#L34>)
+
+```go
+func (l *Loadbalancer[T]) Current() T
+```
+
+Current returns the current item in the slice, without advancing the Loadbalancer.
+
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []int{1, 2, 3}
+	lb := NewLoadbalancer(set)
+
+	fmt.Println(lb.Current())
+
+}
+```
+
+#### Output
+
+```
+1
+```
+
+</p>
+</details>
+
+### func \(\*Loadbalancer\[T\]\) [Next](<https://github.com/atomicgo/robin/blob/main/robin.go#L43>)
 
 ```go
 func (l *Loadbalancer[T]) Next() T
 ```
+
+Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
 
 <details><summary>Example</summary>
 <p>
@@ -174,13 +274,41 @@ func (l *Loadbalancer[T]) Next() T
 </p>
 </details>
 
-### func \(\*Loadbalancer\[T\]\) [Reset](<https://github.com/atomicgo/robin/blob/main/robin.go#L50>)
+### func \(\*Loadbalancer\[T\]\) [Reset](<https://github.com/atomicgo/robin/blob/main/robin.go#L58>)
 
 ```go
 func (l *Loadbalancer[T]) Reset()
 ```
 
 Reset resets the Loadbalancer to its initial state.
+
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []int{1, 2, 3, 4, 5, 6}
+	lb := NewLoadbalancer(set)
+
+	lb.Next()
+	lb.Next()
+	lb.Next()
+
+	lb.Reset()
+
+	fmt.Println(lb.Current())
+
+}
+```
+
+#### Output
+
+```
+1
+```
+
+</p>
+</details>
 
 
 
