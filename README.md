@@ -66,7 +66,7 @@
 # robin
 
 ```go
-import "atomicgo.dev/template"
+import "atomicgo.dev/robin"
 ```
 
 Package robin is a simple, generic round\-robin load balancer for Go.
