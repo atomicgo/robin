@@ -80,8 +80,12 @@ There are two versions of Robin: a thread\-safe version \(NewThreadSafeLoadbalan
 Benchmark:
 
 ```
-BenchmarkLoadbalancer_Next-32                   222961711                5.272 ns/op
-BenchmarkLoadbalancer_Next_ThreadSafe-32        79443891                15.57 ns/op
+BenchmarkLoadbalancer_Next                      225866620                5.274 ns/op
+BenchmarkLoadbalancer_Next-2                    227712583                5.285 ns/op
+BenchmarkLoadbalancer_Next-32                   228792201                5.273 ns/op
+BenchmarkLoadbalancer_Next_ThreadSafe           100000000               10.15 ns/op
+BenchmarkLoadbalancer_Next_ThreadSafe-2         100000000               10.02 ns/op
+BenchmarkLoadbalancer_Next_ThreadSafe-32        100000000               10.06 ns/op
 ```
 
 ## Index
@@ -123,7 +127,7 @@ func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T]
 
 NewThreadSafeLoadbalancer creates a new Loadbalancer. This is thread\-safe, but slower than NewLoadbalancer. It is guaranteed that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
 
-### func \(\*Loadbalancer\[T\]\) [AddItems](<https://github.com/atomicgo/robin/blob/main/robin.go#L51>)
+### func \(\*Loadbalancer\[T\]\) [AddItems](<https://github.com/atomicgo/robin/blob/main/robin.go#L59>)
 
 ```go
 func (l *Loadbalancer[T]) AddItems(items ...T)
@@ -131,13 +135,11 @@ func (l *Loadbalancer[T]) AddItems(items ...T)
 
 AddItems adds items to the Loadbalancer.
 
-### func \(\*Loadbalancer\[T\]\) [Next](<https://github.com/atomicgo/robin/blob/main/robin.go#L34>)
+### func \(\*Loadbalancer\[T\]\) [Next](<https://github.com/atomicgo/robin/blob/main/robin.go#L35>)
 
 ```go
 func (l *Loadbalancer[T]) Next() T
 ```
-
-Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
 
 <details><summary>Example</summary>
 <p>
@@ -172,7 +174,7 @@ Next returns the next item in the slice. When the end of the slice is reached, i
 </p>
 </details>
 
-### func \(\*Loadbalancer\[T\]\) [Reset](<https://github.com/atomicgo/robin/blob/main/robin.go#L46>)
+### func \(\*Loadbalancer\[T\]\) [Reset](<https://github.com/atomicgo/robin/blob/main/robin.go#L50>)
 
 ```go
 func (l *Loadbalancer[T]) Reset()
