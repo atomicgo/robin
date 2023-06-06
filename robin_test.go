@@ -47,30 +47,35 @@ func TestLoadbalancer_Next_ThreadSafe(t *testing.T) {
 func TestLoadbalancer_AddItems(t *testing.T) {
 	set := []int{1, 2, 3}
 
-	lb := NewLoadbalancer(set)
+	lbs := []Loadbalancer[int]{*NewLoadbalancer(set), *NewThreadSafeLoadbalancer(set)}
 
-	lb.AddItems(4, 5, 6)
+	for lbi := range lbs {
+		lbs[lbi].AddItems(4, 5, 6)
 
-	if lb.Items[5] != 6 {
-		t.Errorf("expected %d, got %d", 6, lb.Items[5])
+		if lbs[lbi].Items[5] != 6 {
+			t.Errorf("expected %d, got %d", 6, lbs[lbi].Items[5])
+		}
 	}
 }
 
 func TestLoadbalancer_Reset(t *testing.T) {
 	set := []int{1, 2, 3}
 
-	lb := NewLoadbalancer(set)
+	lbs := []Loadbalancer[int]{*NewLoadbalancer(set), *NewThreadSafeLoadbalancer(set)}
 
-	for i := 0; i < 10; i++ {
-		if lb.Next() != set[i%len(set)] {
-			t.Errorf("expected %d, got %d", set[i%len(set)], lb.Next())
+	for lbi := range lbs {
+
+		for i := 0; i < 10; i++ {
+			if lbs[lbi].Next() != set[i%len(set)] {
+				t.Errorf("expected %d, got %d", set[i%len(set)], lbs[lbi].Next())
+			}
 		}
-	}
 
-	lb.Reset()
+		lbs[lbi].Reset()
 
-	if lb.CurrentIndex != 0 {
-		t.Errorf("expected %d, got %d", 0, lb.CurrentIndex)
+		if lbs[lbi].CurrentIndex != 0 {
+			t.Errorf("expected %d, got %d", 0, lbs[lbi].CurrentIndex)
+		}
 	}
 }
 
