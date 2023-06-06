@@ -1,7 +1,6 @@
 package robin
 
 import (
-	"fmt"
 	"sync"
 	"testing"
 )
@@ -73,46 +72,20 @@ func TestLoadbalancer_Reset(t *testing.T) {
 
 		lbs[lbi].Reset()
 
-		if lbs[lbi].CurrentIndex != 0 {
-			t.Errorf("expected %d, got %d", 0, lbs[lbi].CurrentIndex)
+		if lbs[lbi].idx != 0 {
+			t.Errorf("expected %d, got %d", 0, lbs[lbi].idx)
 		}
 	}
 }
 
-func BenchmarkLoadbalancer_Next(b *testing.B) {
+func TestLoadbalancer_Current(t *testing.T) {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		lb.Next()
-	}
-}
 
-func BenchmarkLoadbalancer_Next_ThreadSafe(b *testing.B) {
-	set := []int{1, 2, 3}
-	lb := NewThreadSafeLoadbalancer(set)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		lb.Next()
-	}
-}
+	lbs := []Loadbalancer[int]{*NewLoadbalancer(set), *NewThreadSafeLoadbalancer(set)}
 
-func ExampleLoadbalancer_Next() {
-	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
-
-	for i := 0; i < 10; i++ {
-		fmt.Println(lb.Next())
+	for lbi := range lbs {
+		if lbs[lbi].Current() != set[0] {
+			t.Errorf("expected %d, got %d", set[0], lbs[lbi].Current())
+		}
 	}
-	// Output:
-	// 1
-	// 2
-	// 3
-	// 1
-	// 2
-	// 3
-	// 1
-	// 2
-	// 3
-	// 1
 }

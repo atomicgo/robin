@@ -4,11 +4,11 @@ import "sync"
 
 // Loadbalancer is a simple, generic round-robin load balancer for Go.
 type Loadbalancer[T any] struct {
-	Items        []T
-	CurrentIndex int
-	ThreadSafe   bool
+	Items      []T
+	ThreadSafe bool
 
-	mu sync.Mutex
+	idx int
+	mu  sync.Mutex
 }
 
 // NewLoadbalancer creates a new Loadbalancer.
@@ -30,18 +30,26 @@ func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T] {
 	}
 }
 
-// Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
+// Current returns the current item in the slice, without advancing the Loadbalancer.
+func (l *Loadbalancer[T]) Current() T {
+	if l.ThreadSafe {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+	}
+	return l.Items[l.idx]
+}
 
+// Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
 func (l *Loadbalancer[T]) Next() T {
 	var item T
 	if l.ThreadSafe {
 		l.mu.Lock()
-		item = l.Items[l.CurrentIndex]
-		l.CurrentIndex = (l.CurrentIndex + 1) % len(l.Items)
+		item = l.Items[l.idx]
+		l.idx = (l.idx + 1) % len(l.Items)
 		l.mu.Unlock()
 	} else {
-		item = l.Items[l.CurrentIndex]
-		l.CurrentIndex = (l.CurrentIndex + 1) % len(l.Items)
+		item = l.Items[l.idx]
+		l.idx = (l.idx + 1) % len(l.Items)
 	}
 	return item
 }
@@ -52,7 +60,7 @@ func (l *Loadbalancer[T]) Reset() {
 		l.mu.Lock()
 		defer l.mu.Unlock()
 	}
-	l.CurrentIndex = 0
+	l.idx = 0
 }
 
 // AddItems adds items to the Loadbalancer.
