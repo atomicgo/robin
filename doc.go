@@ -10,7 +10,11 @@ The thread-safe version is slower than the non-thread-safe version, but it is gu
 
 Benchmark:
 
-	BenchmarkLoadbalancer_Next-32                   222961711                5.272 ns/op
-	BenchmarkLoadbalancer_Next_ThreadSafe-32        79443891                15.57 ns/op
+	BenchmarkLoadbalancer_Next                      225866620                5.274 ns/op
+	BenchmarkLoadbalancer_Next-2                    227712583                5.285 ns/op
+	BenchmarkLoadbalancer_Next-32                   228792201                5.273 ns/op
+	BenchmarkLoadbalancer_Next_ThreadSafe           100000000               10.15 ns/op
+	BenchmarkLoadbalancer_Next_ThreadSafe-2         100000000               10.02 ns/op
+	BenchmarkLoadbalancer_Next_ThreadSafe-32        100000000               10.06 ns/op
 */
 package robin

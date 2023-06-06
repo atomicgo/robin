@@ -31,23 +31,35 @@ func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T] {
 }
 
 // Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
+
 func (l *Loadbalancer[T]) Next() T {
+	var item T
 	if l.ThreadSafe {
 		l.mu.Lock()
-		defer l.mu.Unlock()
+		item = l.Items[l.CurrentIndex]
+		l.CurrentIndex = (l.CurrentIndex + 1) % len(l.Items)
+		l.mu.Unlock()
+	} else {
+		item = l.Items[l.CurrentIndex]
+		l.CurrentIndex = (l.CurrentIndex + 1) % len(l.Items)
 	}
-
-	item := l.Items[l.CurrentIndex]
-	l.CurrentIndex = (l.CurrentIndex + 1) % len(l.Items)
 	return item
 }
 
 // Reset resets the Loadbalancer to its initial state.
 func (l *Loadbalancer[T]) Reset() {
+	if l.ThreadSafe {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+	}
 	l.CurrentIndex = 0
 }
 
 // AddItems adds items to the Loadbalancer.
 func (l *Loadbalancer[T]) AddItems(items ...T) {
+	if l.ThreadSafe {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+	}
 	l.Items = append(l.Items, items...)
 }
