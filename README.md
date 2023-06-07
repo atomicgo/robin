@@ -121,9 +121,16 @@ NewLoadbalancer creates a new Loadbalancer. It is guaranteed that two concurrent
 <p>
 
 ```go
-{
+package main
+
+import (
+	"atomicgo.dev/robin"
+	"fmt"
+)
+
+func main() {
 	set := []string{"object1", "object2", "object3"}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	fmt.Println(lb.Current())
 
@@ -151,9 +158,16 @@ AddItems adds items to the Loadbalancer.
 <p>
 
 ```go
-{
+package main
+
+import (
+	"atomicgo.dev/robin"
+	"fmt"
+)
+
+func main() {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	lb.AddItems(4, 5, 6)
 
@@ -183,9 +197,16 @@ Current returns the current item in the slice, without advancing the Loadbalance
 <p>
 
 ```go
-{
+package main
+
+import (
+	"atomicgo.dev/robin"
+	"fmt"
+)
+
+func main() {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	fmt.Println(lb.Current())
 
@@ -213,14 +234,20 @@ Next returns the next item in the slice. When the end of the slice is reached, i
 <p>
 
 ```go
-{
+package main
+
+import (
+	"atomicgo.dev/robin"
+	"fmt"
+)
+
+func main() {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	for i := 0; i < 10; i++ {
 		fmt.Println(lb.Next())
 	}
-
 }
 ```
 
@@ -254,9 +281,16 @@ Reset resets the Loadbalancer to its initial state.
 <p>
 
 ```go
-{
+package main
+
+import (
+	"atomicgo.dev/robin"
+	"fmt"
+)
+
+func main() {
 	set := []int{1, 2, 3, 4, 5, 6}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	lb.Next()
 	lb.Next()
