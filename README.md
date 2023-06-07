@@ -80,12 +80,7 @@ Thread\-safety is achieved by using atomic operations amd guarantees that two co
 Benchmark:
 
 ```
-BenchmarkLoadbalancer_Next              251751190                4.772 ns/op
-BenchmarkLoadbalancer_Next-2            250728889                4.834 ns/op
-BenchmarkLoadbalancer_Next-4            253328150                4.773 ns/op
-BenchmarkLoadbalancer_Next-8            248147372                4.783 ns/op
-BenchmarkLoadbalancer_Next-16           249468267                4.773 ns/op
-BenchmarkLoadbalancer_Next-32           247134729                4.802 ns/op
+BenchmarkLoadbalancer_Next-32           252656684                4.756 ns/op           0 B/op          0 allocs/op
 ```
 
 ## Index
