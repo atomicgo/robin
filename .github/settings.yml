@@ -20,4 +20,4 @@ repository:
   has_projects: false
 
   # Either `true` to enable the wiki for this repository, `false` to disable it.
-   has_wiki: false
+  has_wiki: false
