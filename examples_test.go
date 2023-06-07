@@ -12,16 +12,6 @@ func ExampleNewLoadbalancer() {
 	// object1
 }
 
-func ExampleNewThreadSafeLoadbalancer() {
-	set := []string{"object1", "object2", "object3"}
-	lb := NewThreadSafeLoadbalancer(set)
-
-	fmt.Println(lb.Current())
-
-	// Output:
-	// object1
-}
-
 func ExampleLoadbalancer_Current() {
 	set := []int{1, 2, 3}
 	lb := NewLoadbalancer(set)
