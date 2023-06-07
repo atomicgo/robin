@@ -75,6 +75,8 @@ linters:
     - whitespace
     - wrapcheck
     - wsl
+    - gocyclo
+    - misspell
 issues:
   include:
     - EXC0012
