@@ -16,7 +16,7 @@
 </a>
 
 <a href="https://codecov.io/gh/atomicgo/robin">
-<!-- unittestcount:start --><img src="https://img.shields.io/badge/Unit_Tests-5-magenta?style=flat-square" alt="Unit test count"><!-- unittestcount:end -->
+<!-- unittestcount:start --><img src="https://img.shields.io/badge/Unit_Tests-10-magenta?style=flat-square" alt="Unit test count"><!-- unittestcount:end -->
 </a>
 
 <a href="https://opensource.org/licenses/MIT" target="_blank">
@@ -69,65 +69,77 @@
 import "atomicgo.dev/robin"
 ```
 
-Package robin is a simple, generic round\-robin load balancer for Go.
+Package robin is a simple, generic and thread\-safe round\-robin load balancer for Go.
 
 It can be used to load balance any type of data. It is not limited to HTTP requests.
 
 Robin takes any slice as an input and returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
 
-There are two versions of Robin: a thread\-safe version \(NewThreadSafeLoadbalancer\)  and a non\-thread\-safe \(NewLoadbalancer\) version. The thread\-safe version is slower than the non\-thread\-safe version, but it is guaranteed that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
+Thread\-safety is achieved by using atomic operations amd guarantees that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
 
 Benchmark:
 
 ```
-BenchmarkLoadbalancer_Next                      225866620                5.274 ns/op
-BenchmarkLoadbalancer_Next-2                    227712583                5.285 ns/op
-BenchmarkLoadbalancer_Next-32                   228792201                5.273 ns/op
-BenchmarkLoadbalancer_Next_ThreadSafe           100000000               10.15 ns/op
-BenchmarkLoadbalancer_Next_ThreadSafe-2         100000000               10.02 ns/op
-BenchmarkLoadbalancer_Next_ThreadSafe-32        100000000               10.06 ns/op
+BenchmarkLoadbalancer_Next              251751190                4.772 ns/op
+BenchmarkLoadbalancer_Next-2            250728889                4.834 ns/op
+BenchmarkLoadbalancer_Next-4            253328150                4.773 ns/op
+BenchmarkLoadbalancer_Next-8            248147372                4.783 ns/op
+BenchmarkLoadbalancer_Next-16           249468267                4.773 ns/op
+BenchmarkLoadbalancer_Next-32           247134729                4.802 ns/op
 ```
 
 ## Index
 
 - [type Loadbalancer](<#type-loadbalancer>)
   - [func NewLoadbalancer[T any](items []T) *Loadbalancer[T]](<#func-newloadbalancer>)
-  - [func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T]](<#func-newthreadsafeloadbalancer>)
   - [func (l *Loadbalancer[T]) AddItems(items ...T)](<#func-loadbalancert-additems>)
+  - [func (l *Loadbalancer[T]) Current() T](<#func-loadbalancert-current>)
   - [func (l *Loadbalancer[T]) Next() T](<#func-loadbalancert-next>)
   - [func (l *Loadbalancer[T]) Reset()](<#func-loadbalancert-reset>)
 
 
-## type [Loadbalancer](<https://github.com/atomicgo/robin/blob/main/robin.go#L6-L12>)
+## type [Loadbalancer](<https://github.com/atomicgo/robin/blob/main/robin.go#L8-L12>)
 
-Loadbalancer is a simple, generic round\-robin load balancer for Go.
+Loadbalancer is a simple, generic and thread\-safe round\-robin load balancer for Go.
 
 ```go
 type Loadbalancer[T any] struct {
-    Items        []T
-    CurrentIndex int
-    ThreadSafe   bool
+    Items []T
     // contains filtered or unexported fields
 }
 ```
 
-### func [NewLoadbalancer](<https://github.com/atomicgo/robin/blob/main/robin.go#L17>)
+### func [NewLoadbalancer](<https://github.com/atomicgo/robin/blob/main/robin.go#L16>)
 
 ```go
 func NewLoadbalancer[T any](items []T) *Loadbalancer[T]
 ```
 
-NewLoadbalancer creates a new Loadbalancer. For maximum speed, this is not thread\-safe. Use NewThreadSafeLoadbalancer if you need thread\-safety. If two goroutines call Loadbalancer.Next at the exact same time, it can happen that they both return the same item.
+NewLoadbalancer creates a new Loadbalancer. It is guaranteed that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
 
-### func [NewThreadSafeLoadbalancer](<https://github.com/atomicgo/robin/blob/main/robin.go#L26>)
+<details><summary>Example</summary>
+<p>
 
 ```go
-func NewThreadSafeLoadbalancer[T any](items []T) *Loadbalancer[T]
+{
+	set := []string{"object1", "object2", "object3"}
+	lb := NewLoadbalancer(set)
+
+	fmt.Println(lb.Current())
+
+}
 ```
 
-NewThreadSafeLoadbalancer creates a new Loadbalancer. This is thread\-safe, but slower than NewLoadbalancer. It is guaranteed that two concurrent calls to Loadbalancer.Next will not return the same item, if the slice contains more than one item.
+#### Output
 
-### func \(\*Loadbalancer\[T\]\) [AddItems](<https://github.com/atomicgo/robin/blob/main/robin.go#L59>)
+```
+object1
+```
+
+</p>
+</details>
+
+### func \(\*Loadbalancer\[T\]\) [AddItems](<https://github.com/atomicgo/robin/blob/main/robin.go#L40>)
 
 ```go
 func (l *Loadbalancer[T]) AddItems(items ...T)
@@ -135,11 +147,67 @@ func (l *Loadbalancer[T]) AddItems(items ...T)
 
 AddItems adds items to the Loadbalancer.
 
-### func \(\*Loadbalancer\[T\]\) [Next](<https://github.com/atomicgo/robin/blob/main/robin.go#L35>)
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []int{1, 2, 3}
+	lb := NewLoadbalancer(set)
+
+	lb.AddItems(4, 5, 6)
+
+	fmt.Println(lb.Items)
+
+}
+```
+
+#### Output
+
+```
+[1 2 3 4 5 6]
+```
+
+</p>
+</details>
+
+### func \(\*Loadbalancer\[T\]\) [Current](<https://github.com/atomicgo/robin/blob/main/robin.go#L23>)
+
+```go
+func (l *Loadbalancer[T]) Current() T
+```
+
+Current returns the current item in the slice, without advancing the Loadbalancer.
+
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []int{1, 2, 3}
+	lb := NewLoadbalancer(set)
+
+	fmt.Println(lb.Current())
+
+}
+```
+
+#### Output
+
+```
+1
+```
+
+</p>
+</details>
+
+### func \(\*Loadbalancer\[T\]\) [Next](<https://github.com/atomicgo/robin/blob/main/robin.go#L29>)
 
 ```go
 func (l *Loadbalancer[T]) Next() T
 ```
+
+Next returns the next item in the slice. When the end of the slice is reached, it starts again from the beginning.
 
 <details><summary>Example</summary>
 <p>
@@ -174,13 +242,41 @@ func (l *Loadbalancer[T]) Next() T
 </p>
 </details>
 
-### func \(\*Loadbalancer\[T\]\) [Reset](<https://github.com/atomicgo/robin/blob/main/robin.go#L50>)
+### func \(\*Loadbalancer\[T\]\) [Reset](<https://github.com/atomicgo/robin/blob/main/robin.go#L35>)
 
 ```go
 func (l *Loadbalancer[T]) Reset()
 ```
 
 Reset resets the Loadbalancer to its initial state.
+
+<details><summary>Example</summary>
+<p>
+
+```go
+{
+	set := []int{1, 2, 3, 4, 5, 6}
+	lb := NewLoadbalancer(set)
+
+	lb.Next()
+	lb.Next()
+	lb.Next()
+
+	lb.Reset()
+
+	fmt.Println(lb.Current())
+
+}
+```
+
+#### Output
+
+```
+1
+```
+
+</p>
+</details>
 
 
 
