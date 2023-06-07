@@ -9,11 +9,11 @@ Thread-safety is achieved by using atomic operations amd guarantees that two con
 
 Benchmark:
 
-	BenchmarkLoadbalancer_Next              251751190                4.772 ns/op
-	BenchmarkLoadbalancer_Next-2            250728889                4.834 ns/op
-	BenchmarkLoadbalancer_Next-4            253328150                4.773 ns/op
-	BenchmarkLoadbalancer_Next-8            248147372                4.783 ns/op
-	BenchmarkLoadbalancer_Next-16           249468267                4.773 ns/op
-	BenchmarkLoadbalancer_Next-32           247134729                4.802 ns/op
+	BenchmarkLoadbalancer_Next              252151534                4.746 ns/op           0 B/op          0 allocs/op
+	BenchmarkLoadbalancer_Next-2            254281032                4.758 ns/op           0 B/op          0 allocs/op
+	BenchmarkLoadbalancer_Next-4            253424396                4.738 ns/op           0 B/op          0 allocs/op
+	BenchmarkLoadbalancer_Next-8            254842484                4.752 ns/op           0 B/op          0 allocs/op
+	BenchmarkLoadbalancer_Next-16           247016046                4.785 ns/op           0 B/op          0 allocs/op
+	BenchmarkLoadbalancer_Next-32           250539441                4.774 ns/op           0 B/op          0 allocs/op
 */
 package robin
