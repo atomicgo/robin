@@ -1,10 +1,13 @@
-package robin
+package robin_test
 
-import "fmt"
+import (
+	"atomicgo.dev/robin"
+	"fmt"
+)
 
 func ExampleNewLoadbalancer() {
 	set := []string{"object1", "object2", "object3"}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	fmt.Println(lb.Current())
 
@@ -14,7 +17,7 @@ func ExampleNewLoadbalancer() {
 
 func ExampleLoadbalancer_Current() {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	fmt.Println(lb.Current())
 
@@ -24,7 +27,7 @@ func ExampleLoadbalancer_Current() {
 
 func ExampleLoadbalancer_AddItems() {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	lb.AddItems(4, 5, 6)
 
@@ -36,7 +39,7 @@ func ExampleLoadbalancer_AddItems() {
 
 func ExampleLoadbalancer_Reset() {
 	set := []int{1, 2, 3, 4, 5, 6}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	lb.Next()
 	lb.Next()
@@ -52,7 +55,7 @@ func ExampleLoadbalancer_Reset() {
 
 func ExampleLoadbalancer_Next() {
 	set := []int{1, 2, 3}
-	lb := NewLoadbalancer(set)
+	lb := robin.NewLoadbalancer(set)
 
 	for i := 0; i < 10; i++ {
 		fmt.Println(lb.Next())
