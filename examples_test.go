@@ -1,8 +1,9 @@
 package robin_test
 
 import (
-	"atomicgo.dev/robin"
 	"fmt"
+
+	"atomicgo.dev/robin"
 )
 
 type Person struct {

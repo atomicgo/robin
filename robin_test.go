@@ -30,6 +30,7 @@ func TestLoadbalancer_Next_ThreadSafe(t *testing.T) {
 
 	for i := 0; i < 1337; i++ {
 		wg.Add(1)
+
 		go func() {
 			lb.Next()
 			wg.Done()
